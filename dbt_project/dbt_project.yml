@@ -1,0 +1,20 @@
+name: 'age_coe_dbt'
+version: '1.0.0'
+config-version: 2
+
+profile: 'age_coe_profile'
+
+model-paths: ['models']
+analysis-paths: ['analysis']
+test-paths: ['tests']
+seed-paths: ['seeds']
+macro-paths: ['macros']
+snapshot-paths: ['snapshots']
+target-path: 'target'
+clean-targets: ['target']
+
+models:
+  age_coe_dbt:
+    +materialized: table
+    staging:
+      +materialized: view
