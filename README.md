@@ -1,4 +1,4 @@
-# Age COE Pipeline (Snowflake + dlt + dbt + Streamlit)
+# Age COE Pipeline (Snowflake + dbt + Streamlit)
 
 This repo reproduces the analysis pipeline you asked for:
 - **dlt** loads raw data (e.g. `results.csv`) into **Snowflake** as `RAW_RESULTS`
