@@ -1,41 +1,49 @@
--- models/intermediate/int_abs_error.sql
-with base as (
+{% set raw_rel = adapter.get_relation(
+    database=target.database,
+    schema=target.schema,
+    identifier='RAW_RESULTS'
+) %}
+
+{% set raw_cols = adapter.get_columns_in_relation(raw_rel) %}
+{% set colnames = [] %}
+{% for c in raw_cols %}
+  {% do colnames.append(c.name.upper()) %}
+{% endfor %}
+
+{% set has_reported_age  = 'REPORTED_AGE'  in colnames %}
+{% set has_estimated_age = 'ESTIMATED_AGE' in colnames %}
+
+with
+base as (
   select * from {{ ref('stg_results') }}
 ),
-est as (
+
+raw_pred as (
   select
-    *,
-    case
-      when method_norm = 'Estimation'
-       and reported_age is not null
-       and subject_age_years between 0 and 100
-      then abs(reported_age - subject_age_years)
-      else null
-    end as abs_error
-  from base
+    id,
+    {% if has_reported_age %}
+      try_to_number(to_varchar(reported_age))  as predicted_age_years
+    {% elif has_estimated_age %}
+      try_to_number(to_varchar(estimated_age)) as predicted_age_years
+    {% else %}
+      null::float as predicted_age_years
+    {% endif %}
+  from {{ target.database }}.{{ target.schema }}.RAW_RESULTS
 ),
-stats as (
+
+joined as (
   select
-    method_norm,
-    avg(abs_error) as mean_abs_error,
-    stddev_samp(abs_error) as sd_abs_error
-  from est
-  where abs_error is not null
-  group by 1
-),
-with_flags as (
-  select
-    e.*,
-    s.mean_abs_error,
-    s.sd_abs_error,
-    case
-      when e.abs_error is null then null
-      when s.sd_abs_error is null then e.abs_error -- no variance info
-      when e.abs_error between (s.mean_abs_error - 2*s.sd_abs_error) and (s.mean_abs_error + 2*s.sd_abs_error)
-        then e.abs_error
-      else null
-    end as abs_error_trimmed
-  from est e
-  left join stats s using (method_norm)
+    b.*,
+    r.predicted_age_years
+  from base b
+  left join raw_pred r using (id)
 )
-select * from with_flags
+
+select
+  *,
+  case
+    when predicted_age_years is not null and subject_age_years is not null
+      then abs(predicted_age_years - subject_age_years)
+    else null
+  end as absolute_error
+from joined
