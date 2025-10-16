@@ -55,23 +55,20 @@ You will **manually** load your local CSV file (for example, `raw_results.csv`) 
 
 Follow these steps:
 
-1. **Open the Snowflake Web UI (Snowsight)** and select your active **Role** and **Warehouse**.  
-2. Navigate to your **Database** (e.g., `AGE_DB`) and **Schema** (e.g., `PUBLIC`).  
+1. **Open the new worksheet** and select your active **Role** and **Warehouse**.  
+2. Navigate to your **Database** (e.g., `DJ_WORK_DB`) and **Schema** (e.g., `PUBLIC`).  
 3. Click the **three dots (⋮)** next to the **PUBLIC** schema and choose **“Load Data”**.  
 4. In the dialog that appears:
-   - Click **“Select File”** and choose your local `raw_results.csv` file.
+   - Click **“browse”** and choose your local `raw_results.csv` file.
    - Choose **“Create a new table”**.
    - Name the table **`RAW_RESULTS`**.
-   - Ensure the file format is **CSV** with:
-     - **Field delimiter:** `,`
-     - **Header row:** tick “Header present”
-     - **Optionally enclosed by:** `"`.  
+   - Click next and Ensure the file is in correct CSV format..  
 5. Click **Load Data** and wait for the process to complete.  
 6. Once done, verify the load by running these queries in Snowflake:
 
    ```sql
-   SELECT COUNT(*) FROM AGE_DB.PUBLIC.RAW_RESULTS;
-   SELECT * FROM AGE_DB.PUBLIC.RAW_RESULTS LIMIT 10;
+   SELECT COUNT(*) FROM DJ_WORK_DB.PUBLIC.RAW_RESULTS;
+   SELECT * FROM DJ_WORK_DB.PUBLIC.RAW_RESULTS LIMIT 10;
    ```
 
 > 📝 **Note:**  
